@@ -1,0 +1,37 @@
+services:
+  sqlite:
+    build:
+      context: .
+      dockerfile: docker-sqlite/Dockerfile
+    container_name: crm_sqlite
+    networks:
+      - crm_network
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker-backend/Dockerfile
+    container_name: crm_backend
+    depends_on:
+      - sqlite
+    networks:
+      - crm_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: crm_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - crm_network
+    restart: unless-stopped
+
+networks:
+  crm_network:
+    driver: bridge
